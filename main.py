@@ -1,2 +1,3 @@
-print("Hello World!")
-print("Some changes")
+a=int(input('Write number a: '))
+b=int(input('Write number b: '))
+print(a+b)
