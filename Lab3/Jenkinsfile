@@ -13,6 +13,7 @@ pipeline{
             steps{
                 echo "Building...${BUILD_NUMBER}"
                 echo "Building completed"
+                sh 'docker build -t lab3 .'
             }
         }
         stage('Test'){
@@ -26,6 +27,7 @@ pipeline{
                 sh 'apk add --update python3 py3-pip'
                 sh 'pip install xmlrunner'
                 sh "python3 \${WORKSPACE}/Lab3/test_good.py"
+                sh 'docker run lab3 test'
             }
             post {
                 always {
@@ -36,6 +38,45 @@ pipeline{
                 }
                 failure {
                     echo "Something went wrong!"
+                }
+            }
+        }
+        stage('Build Docker Image Info') {
+            steps {
+                script {
+                    // Отримати хеш коміту для тегу образу
+                    def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    // Створити тег образу
+                    def imageTag = "lab3:${commitHash}"
+                    // Записати тег образу у файл
+                    writeFile file: 'docker-image-tag', text: imageTag
+                }
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def imageTag = readFile 'docker-image-tag'
+                    // Створити Docker образ та позначити його тегом
+                    sh "docker build -t ${imageTag} ."
+                }
+            }
+        }
+        stage('Docker Hub Login') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
+                        sh "docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}"
+                    }
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    def imageTag = readFile 'docker-image-tag'
+                    // Послати Docker образ на Docker Hub
+                    sh "docker push ${imageTag}"
                 }
             }
         }
