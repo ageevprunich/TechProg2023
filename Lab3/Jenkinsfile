@@ -1,33 +1,31 @@
-pipeline{
-    options{timestamps()}
+pipeline {
+    agent any
 
-    agent none
-    stages{
-        stage('Check scm'){
+    stages {
+        stage('Check scm') {
             agent any
-            steps{
+            steps {
                 checkout scm
             }
         }
-        stage('Build'){
-            steps{
+
+        stage('Build') {
+            steps {
                 echo "Building...${BUILD_NUMBER}"
                 echo "Building completed"
-                sh 'docker build -t lab3 .'
+
+                // Додані команди для будівництва та тестування
+                sh 'docker build -t my-app .'
+                sh 'docker run my-app test'
             }
         }
-        stage('Test'){
-            agent { 
-                docker {
-                    image 'alpine'
-                    args '-u=root'
-                }
-            }
+
+        stage('Test') {
+            agent { docker { image 'alpine' args '-u="root"' } }
             steps {
-                sh 'apk add --update python3 py3-pip'
+                sh 'apk add --udate python3 py-pip'
                 sh 'pip install xmlrunner'
-                sh "python3 \${WORKSPACE}/Lab3/test_good.py"
-                sh 'docker run lab3 test'
+                sh 'python3 test_good.py'
             }
             post {
                 always {
@@ -41,18 +39,20 @@ pipeline{
                 }
             }
         }
+
         stage('Build Docker Image Info') {
             steps {
                 script {
                     // Отримати хеш коміту для тегу образу
                     def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     // Створити тег образу
-                    def imageTag = "lab3:${commitHash}"
+                    def imageTag = "my-app:${commitHash}"
                     // Записати тег образу у файл
                     writeFile file: 'docker-image-tag', text: imageTag
                 }
             }
         }
+
         stage('Build Docker Image') {
             steps {
                 script {
@@ -62,6 +62,7 @@ pipeline{
                 }
             }
         }
+
         stage('Docker Hub Login') {
             steps {
                 script {
@@ -71,6 +72,7 @@ pipeline{
                 }
             }
         }
+
         stage('Push Docker Image') {
             steps {
                 script {
@@ -79,6 +81,18 @@ pipeline{
                     sh "docker push ${imageTag}"
                 }
             }
+        }
+    }
+    
+    post {
+        always {
+            junit 'test-reports/*.xml'
+        }
+        success {
+            echo "Application tested successfully completed"
+        }
+        failure {
+            echo "Something went wrong!"
         }
     }
 }
