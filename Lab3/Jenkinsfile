@@ -56,7 +56,7 @@ pipeline{
                     // Отримати хеш коміту для тегу образу
                     def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     // Створити тег образу
-                    def imageTag = "lab3:${commitHash}"
+                    def imageTag = "${commitHash}"
                     // Записати тег образу у файл
                     writeFile file: 'docker-image-tag', text: imageTag
                 }
