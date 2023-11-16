@@ -27,9 +27,7 @@ pipeline{
                 sh 'apk add --update python3 py3-pip'
                 sh 'pip install xmlrunner'
                 sh "python3 \${WORKSPACE}/Lab3/test_good.py"
-                sh 'pwd'
-                sh 'docker build -t lab3 /var/jenkins_home/workspace/Lab3/Lab3'
-                sh 'docker run lab3 test'
+                
             }
             post {
                 always {
@@ -41,6 +39,11 @@ pipeline{
                 failure {
                     echo "Something went wrong!"
                 }
+            }
+            steps('Docker Build'){
+                sh 'pwd'
+                sh 'docker build -t lab3 /var/jenkins_home/workspace/Lab3@2/Dockerfile'
+                sh 'docker run lab3 test'
             }
         }
         stage('Build Docker Image Info') {
