@@ -85,7 +85,7 @@ pipeline{
                 script {
                     def imageTag = readFile 'docker-image-tag'
                     // Надіслати Docker образ на Docker Hub
-                    sh "docker push -a ageevprunich/jenkins_lab3: ${imageTag}"
+                    sh "docker push -a ageevprunich/jenkins_lab3 lab3: ${imageTag}"
                 }
             }
         }
