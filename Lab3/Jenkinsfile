@@ -84,7 +84,7 @@ pipeline{
             steps {
                 script {
                     def imageTag = readFile 'docker-image-tag'
-                    // Послати Docker образ на Docker Hub
+                    // Надіслати Docker образ на Docker Hub
                     sh "docker push ${imageTag}"
                 }
             }
