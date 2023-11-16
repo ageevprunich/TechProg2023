@@ -45,7 +45,7 @@ pipeline{
         stage('Docker Build'){
             steps {
                 sh 'pwd'
-                sh 'docker build -t lab3 .'
+                sh 'docker build -t lab3 /var/jenkins_home/workspace/Lab3/Lab3'
                 sh 'docker run lab3 test'
             }
 
