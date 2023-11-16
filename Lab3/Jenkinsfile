@@ -40,11 +40,15 @@ pipeline{
                     echo "Something went wrong!"
                 }
             }
-            steps('Docker Build'){
+            
+        }
+        stage('Docker Build'){
+            steps {
                 sh 'pwd'
                 sh 'docker build -t lab3 /var/jenkins_home/workspace/Lab3@2/Dockerfile'
                 sh 'docker run lab3 test'
             }
+
         }
         stage('Build Docker Image Info') {
             steps {
