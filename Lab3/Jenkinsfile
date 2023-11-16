@@ -28,7 +28,7 @@ pipeline{
                 sh 'pip install xmlrunner'
                 sh "python3 \${WORKSPACE}/Lab3/test_good.py"
                 sh 'pwd'
-                sh 'docker build -t lab3 jenkins_home/workspace/Lab3/Lab3'
+                sh 'docker build -t lab3 /var/jenkins_home/workspace/Lab3/Lab3'
                 sh 'docker run lab3 test'
             }
             post {
