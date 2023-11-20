@@ -46,7 +46,6 @@ pipeline{
             steps {
                 sh 'pwd'
                 sh 'docker build -t lab3 /var/jenkins_home/workspace/Lab3/Lab3'
-                // sh 'docker run lab3 test'
             }
 
         }
@@ -56,7 +55,7 @@ pipeline{
                     // Отримати хеш коміту для тегу образу
                     def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     // Створити тег образу
-                    def imageTag = "lab3:${commitHash}"
+                    def imageTag = "ageevprunich/jenkins_lab3"
                     // Записати тег образу у файл
                     writeFile file: 'docker-image-tag', text: imageTag
                 }
@@ -67,31 +66,24 @@ pipeline{
                 script {
                     def imageTag = readFile 'docker-image-tag'
                     // Створити Docker образ та позначити його тегом
-                    sh "docker build -t ${imageTag} /var/jenkins_home/workspace/Lab3/Lab3"
+                    sh "docker build -t ${imageTag} -f Dockerfile ."
+                    // sh "docker build -t ${imageTag} /var/jenkins_home/workspace/Lab3/Lab3"
                 }
             }
         }
         stage('Docker Hub Login') {
             steps {
                 script {
+                    sh "docker logout"
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
                         sh "docker login --username=${DOCKER_HUB_USERNAME} --password=${DOCKER_HUB_PASSWORD}"
                         def imageTag = readFile 'docker-image-tag'
                         // Надіслати Docker образ на Docker Hub
-                        sh "docker push ageevprunich/jenkins_${imageTag}"
+                        sh "docker push ageevprunich/jenkins_lab3"
                     }
                 }
             }
         }
-        // stage('Push Docker Image') {
-        //     steps {
-        //         script {
-        //             def imageTag = readFile 'docker-image-tag'
-        //             // Надіслати Docker образ на Docker Hub
-        //             sh "docker push ${imageTag}"
-        //             // sh "docker push ageevprunich/jenkins_lab3:tagname"
-        //         }
-        //     }
-        // }
+        
     }
 }
