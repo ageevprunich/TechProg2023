@@ -67,8 +67,8 @@ pipeline{
                     def imageTag = readFile 'docker-image-tag'
                     // Створити Docker образ та позначити його тегом
                     def myimageTag = "ageevprunich/jenkins_lab3"
-                    sh "docker build -t ${myimageTag} -f Dockerfile ."
-                    // sh "docker build -t ${imageTag} /var/jenkins_home/workspace/Lab3/Lab3"
+                    // sh "docker build -t ${myimageTag} -f Dockerfile ."
+                    sh "docker build -t ${myimageTag} /var/jenkins_home/workspace/Lab3/Lab3"
                 }
             }
         }
